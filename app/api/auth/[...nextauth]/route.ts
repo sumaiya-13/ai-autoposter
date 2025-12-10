@@ -1,25 +1,25 @@
 import NextAuth from "next-auth";
 import GitHub from "next-auth/providers/github";
 
-// 💡 NEW: Explicitly access the environment variables
-const GITHUB_CLIENT_ID = process.env.AUTH_GITHUB_ID;
-const GITHUB_CLIENT_SECRET = process.env.AUTH_GITHUB_SECRET;
+// 💡 CRITICAL FIX: Forces this API route to be executed at request time (runtime), 
+// which guarantees the process.env variables are loaded.
+export const dynamic = "force-dynamic"; 
 
-// 💡 Critical check: Ensure the variables were found
+const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
+
+// The check will now happen at runtime.
 if (!GITHUB_CLIENT_ID || !GITHUB_CLIENT_SECRET) {
-  throw new Error("GitHub Client ID and Secret must be defined in .env.local");
+  throw new Error("GitHub Client ID and Secret must be defined in .env.local using GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET");
 }
-
 
 // 1. Define the configuration object
 const config = {
   providers: [
     GitHub({
-      // 💡 NEW: Pass the variables directly, bypassing auto-detection issues
       clientId: GITHUB_CLIENT_ID,
       clientSecret: GITHUB_CLIENT_SECRET,
       
-      // Explicitly request email, as discussed
       authorization: {
         params: { scope: 'read:user user:email' },
       },
