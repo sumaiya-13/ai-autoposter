@@ -1,13 +1,14 @@
 import NextAuth from "next-auth";
 import GitHub from "next-auth/providers/github";
 
-// 💡 NEW: Explicitly access the environment variables
-const GITHUB_CLIENT_ID = process.env.AUTH_GITHUB_ID;
-const GITHUB_CLIENT_SECRET = process.env.AUTH_GITHUB_SECRET;
+// 💡 NEW: Access the simplified environment variables
+const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
 
-// 💡 Critical check: Ensure the variables were found
+// Critical check: Ensure the variables were found
 if (!GITHUB_CLIENT_ID || !GITHUB_CLIENT_SECRET) {
-  throw new Error("GitHub Client ID and Secret must be defined in .env.local");
+  // We throw a clear error if the variables are missing
+  throw new Error("GitHub Client ID and Secret must be defined in .env.local using GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET");
 }
 
 
@@ -15,16 +16,17 @@ if (!GITHUB_CLIENT_ID || !GITHUB_CLIENT_SECRET) {
 const config = {
   providers: [
     GitHub({
-      // 💡 NEW: Pass the variables directly, bypassing auto-detection issues
+      // 💡 Pass the variables using the values we just read from process.env
       clientId: GITHUB_CLIENT_ID,
       clientSecret: GITHUB_CLIENT_SECRET,
       
-      // Explicitly request email, as discussed
+      // Explicitly request email
       authorization: {
         params: { scope: 'read:user user:email' },
       },
     }),
   ],
+  // The AUTH_SECRET is still used automatically by next-auth internally
   session: {
     strategy: "jwt" as const, 
   },
